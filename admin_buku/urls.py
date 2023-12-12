@@ -1,7 +1,7 @@
 from django.urls import path
 from admin_buku.views import show_main, make_buku, search_books, sort_books, delete_book, request_buku, delete_request_book, get_request_books_json
 from admin_buku.views import get_books_json, get_user, get_buku_by_author, book_details, create_book, edit_book, acc_request_book, request_book_details
-from admin_buku.views import create_book_flutter, edit_book_flutter, delete_book_flutter, acc_request_book_flutter, delete_request_book_flutter
+from admin_buku.views import create_book_flutter, edit_book_flutter, delete_book_flutter, acc_request_book_flutter, delete_request_book_flutter, create_request_flutter
 
 app_name = 'admin_buku'
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path('create-book-flutter/', create_book_flutter, name='create_book_flutter'),
     path('edit-book-flutter/', edit_book_flutter, name='edit_book_flutter'),
     path('delete-book-flutter/', delete_book_flutter, name='delete_book_flutter'),
+    path('create-request-flutter/', create_request_flutter, name='create_request_flutter'),
     path('acc-request-book-flutter/', acc_request_book_flutter, name='acc_request_book_flutter'),
     path('delete-request-book-flutter/', delete_request_book_flutter, name='delete_request_book_flutter'),
 

@@ -81,12 +81,28 @@ def add_bookmark_ajax(request):
         new_bookmark = Bookmark(buku=buku, user=user, judul=buku.judul, gambar=buku.gambar)
         new_bookmark.save()
         return JsonResponse({'message': 'Bookmark berhasil ditambahkan'}, status=201)
+    if request.method == 'POST':
+        id_buku = request.GET.get('id_buku')
+        buku = Buku.objects.get(pk=id_buku)
+        user = request.user
+
+        # Periksa apakah buku sudah ada di bookmark user
+        existing_bookmark = Bookmark.objects.filter(buku=buku, user=user)
+        if existing_bookmark.exists():
+            # Jika sudah ada, kirim pesan bahwa buku sudah ada di bookmark
+            return JsonResponse({'message': 'Buku sudah ada di bookmark'}, status=201)
+
+        # Jika belum ada, tambahkan ke bookmark
+        new_bookmark = Bookmark(buku=buku, user=user, judul=buku.judul, gambar=buku.gambar)
+        new_bookmark.save()
+        return JsonResponse({'message': 'Bookmark berhasil ditambahkan'}, status=201)
 
     return JsonResponse({'message': 'Metode tidak diizinkan'}, status=405)
  
 def get_bookmark_json(request):
     bookmark_item = Bookmark.objects.all()
     return HttpResponse(serializers.serialize('json', bookmark_item))
+
 @csrf_exempt
 def get_bookmark_user(request):
     bookmark_user = Bookmark.objects.filter(user=request.user)
