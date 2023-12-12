@@ -207,6 +207,36 @@ def delete_book_flutter(request):
     return JsonResponse({"status": "error"}, status=401)
 
 @csrf_exempt
+def create_request_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        rating_obj = Rating.objects.create(
+            rating = float(data["rating"])
+        )
+        rating_obj.save()
+
+        rating = Rating.objects.get(pk=rating_obj.pk)
+
+        buku = RequestBuku(
+            isbn=data["isbn"],
+            judul=data["judul"],
+            penulis=data["penulis"],
+            tahun=int(data["tahun"]),
+            kategori=data["kategori"],
+            gambar=data["gambar"],
+            deskripsi=data["deskripsi"],
+            rating=rating,
+            user=request.user,
+        )
+
+        buku.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    
+    return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
 def acc_request_book_flutter(request):
     if request.method == 'POST':
         data = json.loads(request.body)
