@@ -17,8 +17,8 @@ urlpatterns = [
     path('get-bookmark/', get_bookmark_json, name='get_bookmark_json'),
     path('add-bookmark-ajax/', add_bookmark_ajax, name='add_bookmark_ajax'),
     path('json/', show_json, name='show_json'), 
-    path('login-flutter/', login_flutter, name='login'),
-    path('logout-flutter/', logout_flutter, name='logout'),
-    path('register-flutter/', register_flutter, name = 'register'),
-    path('get_bookmark_user/', get_bookmark_user, name='get_bookmark_user'),
+    path('login-flutter/', login_flutter, name='login-flutter'),
+    path('logout-flutter/', logout_flutter, name='logout-flutter'),
+    path('register-flutter/', register_flutter, name = 'register-flutter'),
+    path('get-bookmark-user/', get_bookmark_user, name='get_bookmark_user'),
 ]
