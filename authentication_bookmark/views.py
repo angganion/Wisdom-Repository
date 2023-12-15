@@ -81,8 +81,10 @@ def add_bookmark_ajax(request):
         new_bookmark = Bookmark(buku=buku, user=user, judul=buku.judul, gambar=buku.gambar)
         new_bookmark.save()
         return JsonResponse({'message': 'Bookmark berhasil ditambahkan'}, status=201)
-    if request.method == 'POST':
-        id_buku = request.GET.get('id_buku')
+    
+    if  request.method == 'POST':
+        idbuku = json.loads(request.body)
+        id_buku = idbuku["id_buku"]
         buku = Buku.objects.get(pk=id_buku)
         user = request.user
 
@@ -106,7 +108,8 @@ def get_bookmark_json(request):
 @csrf_exempt
 def get_bookmark_user(request):
     bookmark_user = Bookmark.objects.filter(user=request.user)
-    return HttpResponse(serializers.serialize("json", bookmark_user), content_type="application/json")
+    return HttpResponse(serializers.serialize('json', bookmark_user))
+
 
 def show_json(request):
     data = Bookmark.objects.all()
@@ -119,6 +122,23 @@ def delete_bookmark(request, id):
     buku.delete()
     # Kembali ke halaman awal
     return HttpResponseRedirect(reverse('authentication_bookmark:show_bookmark'))
+
+
+@csrf_exempt
+def delete_bookmark_flutter(request):
+    if  request.method == 'POST':
+        idbuku = json.loads(request.body)
+        id = idbuku["id_buku"]
+        # Get data berdasarkan ID
+        buku = Bookmark.objects.get(pk = id)
+        # Hapus data
+        buku.delete()
+        # Kembali ke halaman awal
+        return JsonResponse({
+            "status": True,
+            "message": "Delete berhasil!"
+        }, status=200)
+    return JsonResponse({'message': 'Metode tidak diizinkan'}, status=405)
 
 @csrf_exempt
 def login_flutter(request):

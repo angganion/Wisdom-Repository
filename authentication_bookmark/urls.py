@@ -1,6 +1,6 @@
 from django.urls import path
 from authentication_bookmark.views import show_bookmark
-from authentication_bookmark.views import register, get_bookmark_user
+from authentication_bookmark.views import register, get_bookmark_user, delete_bookmark_flutter
 from authentication_bookmark.views import login_user, login_flutter, logout_flutter, register_flutter
 from authentication_bookmark.views import logout_user, delete_bookmark , add_bookmark_ajax, get_bookmark_json, show_json
 from daftar_buku.views import show_main
@@ -21,4 +21,5 @@ urlpatterns = [
     path('logout-flutter/', logout_flutter, name='logout-flutter'),
     path('register-flutter/', register_flutter, name = 'register-flutter'),
     path('get-bookmark-user/', get_bookmark_user, name='get_bookmark_user'),
+    path('delete-bookmark-flutter/', delete_bookmark_flutter, name='delete_bookmark_user'),
 ]
