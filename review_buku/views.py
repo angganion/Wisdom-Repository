@@ -1,11 +1,12 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Buku, Review
 from pinjam_buku.models import Pengembalian
 from .forms import ReviewForm
-
-
+from django.core import serializers
+import json
 from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/login')  # Tambahkan decorator ini jika Anda memerlukannya
@@ -55,3 +56,48 @@ def post_review(request):
         pengembalian.save()
         return JsonResponse({"success": True})
     return JsonResponse({"message": "Invalid method"})
+
+@csrf_exempt
+@login_required(login_url='/login')
+def post_review_flutter(request):
+    try:
+        data = json.loads(request.body)
+        review_text = data.get('review_text')
+        idBuku = data.get('idBuku')
+
+        if not review_text or not idBuku:
+            return JsonResponse({"success": False, "message": "Missing data"}, status=400)
+
+        buku = Buku.objects.get(pk=idBuku)
+        pengembalian = Pengembalian.objects.filter(idBuku=idBuku, peminjam=request.user).first()
+
+        if not pengembalian or pengembalian.review:
+            return JsonResponse({"success": False, "message": "No return entry found or already reviewed"}, status=400)
+
+        review = Review(review_text=review_text, buku=buku)
+        review.save()
+
+        pengembalian.review = True
+        pengembalian.save()
+
+        return JsonResponse({"success": True}, status=200)
+
+    except Buku.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Book not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+def show_review_json(request, id):
+    buku = Buku.objects.get(pk=id)
+    reviews = Review.objects.filter(buku=buku)
+    return HttpResponse(serializers.serialize("json", reviews), content_type="application/json")
+
+def show_returned_json(request):
+    pengembalians = Pengembalian.objects.filter(peminjam = request.user, review = False)
+    return HttpResponse(serializers.serialize("json", pengembalians), content_type="application/json")
+
+@csrf_exempt
+def get_books_json_by_id(request, id):
+    buku_list = Buku.objects.filter(pk=id)
+    buku_list_json = serializers.serialize('json', buku_list)
+    return HttpResponse(buku_list_json, content_type="application/json")
