@@ -52,7 +52,7 @@ def post_review(request):
         review = Review(review_text=text, buku=buku)
         review.save()
         pengembalian = Pengembalian.objects.filter(idBuku= int(request.POST.get('idBuku')), peminjam = request.user).first()
-        pengembalian.review = not pengembalian.review
+        pengembalian.review = True
         pengembalian.save()
         return JsonResponse({"success": True})
     return JsonResponse({"message": "Invalid method"})
