@@ -156,44 +156,65 @@ def get_peminjaman_json_id_buku(request, id):
         }, status=200)
 
 @csrf_exempt
+@login_required(login_url='/login') 
 def create_peminjaman_flutter(request):
-    if request.method == 'POST':
-        
-        data = json.loads(request.body)
-        idBuku = int(data["idBuku"])
-        buku = Buku.objects.filter(pk=idBuku).first()
-        new_peminjaman = Peminjaman.objects.create(
-            peminjam = request.user,
-            idBuku = idBuku,
-            buku = buku,
-        )
+    try:
+        if request.method == 'POST':
+            
+            data = json.loads(request.body)
+            idBuku = int(data["idBuku"])
+            buku = Buku.objects.filter(pk=idBuku).first()
+            check = Peminjaman.objects.filter(buku = buku, peminjam=request.user)
+            if len(check) != 0:
+                return JsonResponse({"status": "error"}, status=401)
+            check = Peminjaman.objects.filter(buku = buku)
+            if len(check) != 0:
+                return JsonResponse({"status": "error"}, status=401)
+            check = Peminjaman.objects.filter(peminjam=request.user)
+            if (request.user.member.lower() == "premium"):
+                batas = 7
+            else:
+                batas = 3
+            if len(check) >= batas:
+                return JsonResponse({"status": "error"}, status=401)
+            new_peminjaman = Peminjaman.objects.create(
+                peminjam = request.user,
+                idBuku = idBuku,
+                buku = buku,
+            )
 
-        new_peminjaman.save()
+            new_peminjaman.save()
 
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+            return JsonResponse({"status": "success"}, status=200)
+        else:
+            return JsonResponse({"status": "error"}, status=401)
+    except:
         return JsonResponse({"status": "error"}, status=401)
 
 @csrf_exempt
+@login_required(login_url='/login') 
 def create_pengembalian_flutter(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        idBuku = int(data["idBuku"])
-        idPeminjaman = int(data["idPeminjaman"])
-        peminjaman = Peminjaman.objects.filter(pk = idPeminjaman, peminjam=request.user).first()
-        peminjaman.delete()
-        user = request.user
-        buku_dikembalikan = Buku.objects.filter(pk = idBuku).first()
-        check_pengembalian = Pengembalian.objects.filter(buku = buku_dikembalikan, peminjam=user)
-        if len(check_pengembalian) == 0:
-            new_pengembalian = Pengembalian.objects.create(
-                buku = buku_dikembalikan,
-                peminjam = user,
-                idBuku = idBuku,
-                review = False
-            )
-            new_pengembalian.save()
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            idBuku = int(data["idBuku"])
+            idPeminjaman = int(data["idPeminjaman"])
+            peminjaman = Peminjaman.objects.filter(pk = idPeminjaman, peminjam=request.user).first()
+            peminjaman.delete()
+            user = request.user
+            buku_dikembalikan = Buku.objects.filter(pk = idBuku).first()
+            check_pengembalian = Pengembalian.objects.filter(buku = buku_dikembalikan, peminjam=user)
+            if len(check_pengembalian) == 0:
+                new_pengembalian = Pengembalian.objects.create(
+                    buku = buku_dikembalikan,
+                    peminjam = user,
+                    idBuku = idBuku,
+                    review = False
+                )
+                new_pengembalian.save()
 
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+            return JsonResponse({"status": "success"}, status=200)
+        else:
+            return JsonResponse({"status": "error"}, status=401)
+    except:
         return JsonResponse({"status": "error"}, status=401)
