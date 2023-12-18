@@ -181,7 +181,7 @@
 
 <script>
     async function getProducts() {
-        return fetch("{% url 'authentication_bookmark:get_bookmark_json' %}").then((res) => res.json());
+        return fetch("{% url 'authentication_bookmark:get_bookmark_user' %}").then((res) => res.json());
     }
 
     async function refreshProducts() {
