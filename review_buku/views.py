@@ -52,24 +52,24 @@ def post_review(request):
         review = Review(review_text=text, buku=buku)
         review.save()
         pengembalian = Pengembalian.objects.filter(idBuku= int(request.POST.get('idBuku')), peminjam = request.user).first()
-        pengembalian.review = not pengembalian.review
+        pengembalian.review = True
         pengembalian.save()
         return JsonResponse({"success": True})
     return JsonResponse({"message": "Invalid method"})
 
 @csrf_exempt
-@login_required(login_url='/login')
 def post_review_flutter(request):
     try:
         data = json.loads(request.body)
         review_text = data.get('review_text')
         idBuku = data.get('idBuku')
+        idPengembalian = data.get('idPengembalian')
 
         if not review_text or not idBuku:
             return JsonResponse({"success": False, "message": "Missing data"}, status=400)
 
         buku = Buku.objects.get(pk=idBuku)
-        pengembalian = Pengembalian.objects.filter(idBuku=idBuku, peminjam=request.user).first()
+        pengembalian = Pengembalian.objects.get(pk=idPengembalian)
 
         if not pengembalian or pengembalian.review:
             return JsonResponse({"success": False, "message": "No return entry found or already reviewed"}, status=400)
